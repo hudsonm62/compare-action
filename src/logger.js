@@ -1,5 +1,6 @@
 const core = require("@actions/core")
-import { appendFile } from "node:fs"
+const fs = require("fs")
+//import { appendFile } from "node:fs"
 
 const logPathInput = core.getInput("log_path")
 const logPath = core.toPlatformPath(logPathInput)
@@ -18,7 +19,6 @@ if (logPathInput !== "" || logPath !== null) {
  * @returns {string} The error message
  */
 function myError(err, bNoError = false, bWarnOnly = false) {
-  core.debug("myError handler called: " + err)
   if (!bNoError) {
     writeLog(err)
     if (bWarnOnly) {
@@ -45,11 +45,10 @@ function echo(str) {
 // writes to file
 function writeLog(str) {
   if (bWriteLog) {
-    core.debug("Writing to log file")
     const now = new Date()
     const time = now.toISOString().replace(/\..+/, "")
-    appendFile(logPath, time + " " + str + "\n", (err) => {})
+    fs.appendFile(logPath, time + " " + str + "\n", (err) => {})
   }
 }
 
-module.exports = { myError, echo }
+export { echo, myError }
