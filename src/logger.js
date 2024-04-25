@@ -24,12 +24,14 @@ function myError(err, bNoError = false, bWarnOnly = false) {
     if (bWarnOnly) {
       core.warning(err)
     } else {
+      // error and terminate
       core.error(err)
-      throw new Error(err) // and fail the action (runWrapper handles actual failure)
+      throw err
     }
   } else {
     echo(err)
   }
+  return err
 }
 
 /**
