@@ -1,0 +1,129 @@
+name: CI
+
+on: push
+
+permissions: read-all
+jobs:
+  test-build:
+    strategy:
+      matrix:
+        bun-version: [latest, "1.1.4"]
+    name: Test Builds
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⚙️ Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: 🧹 Lint Prettier
+        uses: hudsonm62/prettier-cli@v1.0.0
+
+      - name: 🍞 Setup Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: 🗃 Install Deps
+        run: bun install --frozen-lockfile #--production
+
+      - name: 📦 Build Package
+        run: bun run bundle -o dist-ci --debug
+
+      - name: Verify output with commited
+        run: diff -qr dist dist-ci
+
+  # todo - could probably add more steps still
+  test-action:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: Test Action (local)
+    steps:
+      - name: ⚙️ Checkout Repo
+        uses: actions/checkout@v4
+      - name: Normal Folder Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/directory1"
+          path2: "./__tests__/compare/directory2"
+          output_diff: true
+
+      - name: Normal File Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/m_file3.txt"
+          output_diff: true
+
+      - name: Normal File Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/m_file3.txt"
+          output_diff: true
+
+      - name: Exclude File Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/directory1"
+          path2: "./__tests__/compare/directory2"
+          exclude: "d_file2.txt"
+          output_diff: true
+
+      # checks root compare vs directory1 (which contain identical files except the folders), so ignore the folders and compare roots
+      - name: Exclude Folders and Files
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare/directory1"
+          exclude: "d_file2.txt,directory2,directory1"
+          output_diff: true
+
+      - name: Test no error
+        uses: ./
+        with:
+          path1: "./__tests__/compare/d_file2.txt"
+          path2: "./__tests__/compare/m_file1.txt"
+          no_error: true
+          output_diff: true
+
+      - name: Test warn instead
+        uses: ./
+        with:
+          path1: "./__tests__/compare/d_file2.txt"
+          path2: "./__tests__/compare/m_file1.txt"
+          warn_instead: true
+          output_diff: true
+
+      - name: Test error same (same files)
+        continue-on-error: true
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/m_file1.txt"
+          error_same: true
+          output_diff: true
+      - name: Test error same (different files)
+        continue-on-error: false # shouldn't fail, since its erroring on matches
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/d_file2.txt"
+          error_same: true
+          output_diff: true
+
+      - name: Test Exclude Glob1
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare"
+          exclude: "**/d_file2.txt"
+          output_diff: true
+      - name: Test Exclude Glob2
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare"
+          exclude: "**/*.txt"
+          no_error: true
+          output_diff: true

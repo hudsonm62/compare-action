@@ -1,0 +1,30 @@
+{
+  "displayName": "Compare Action",
+  "version": "0.0.1",
+  "name": "compare-action",
+  "author": {
+    "name": "Hudson",
+    "url": "https://github.com/hudsonm62"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hudsonm62/compare-action.git"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "@vercel/ncc": "^0.38.1",
+    "prettier": "^3.2.5"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "dir-compare": "^4.2.0"
+  },
+  "scripts": {
+    "build-bun": "bun build ./src/index.js --target node --minify --outfile ./dist/index.js",
+    "build": "bunx ncc build ./src/index.js --license LICENSES.txt --minify",
+    "watch": "bun run build --watch --source-map",
+    "format": "bunx prettier . --w",
+    "bundle": "bun run format && bun run build"
+  }
+}

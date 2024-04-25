@@ -1,0 +1,79 @@
+name: Compare Action 🔃
+author: Hudson
+description: 📂 Simply diffs 2 paths to see if they are the same or different. Supports globs, symlinks, dates and more.
+branding:
+  icon: copy
+  color: blue
+inputs:
+  path1:
+    description: The first path to compare
+    required: true
+  path2:
+    description: The second path to compare
+    required: true
+  exclude:
+    description: Relative [minimatch](https://github.com/isaacs/minimatch) Glob pattern to filter out - Specify multiple patterns by separating with a comma (i.e. "`**/*.js,**/*.ts`").
+    required: false
+  include:
+    description: Relative [minimatch](https://github.com/isaacs/minimatch) Glob pattern to filter in - Specify multiple patterns by separating with a comma (i.e. "`**/*.js,**/*.ts`").
+    required: false
+  compare_size:
+    description: If true, will compare the size of the files (always first).
+    required: false
+    default: "true"
+  compare_content:
+    description: If true, will compare the content of the files.
+    required: false
+    default: "true"
+  error_same:
+    description: Error if the inputs are the same (no diff). If no-error is set, this is ignored.
+    required: false
+    default: "false"
+  no_error:
+    description: Disable erroring. Simply outputs resulting summary.
+    required: false
+    default: "false"
+  warn_instead:
+    description: If true, replaces any diff-related failing errors with just a warning.
+    required: false
+    default: "false"
+  output_diff:
+    description: If true, outputs each compare result to console (matched or not) line by line. Not recommended for large file sets.
+    required: false
+    default: "false"
+  compare_date:
+    description: If true, will also compare the date of the files. (can be used in tandem with `compare_only_name`)
+    required: false
+    default: "false"
+  compare_only_name:
+    description: If true, will only compare the name of the files. (can be used in tandem with `compare_date`)
+    required: false
+    default: "false"
+  ignore_name_case:
+    description: If true, will ignore the case of the file names.
+    required: false
+    default: "false"
+  ignore_line_ending:
+    description: If true, will ignore line endings when comparing files - (CRLF/LF).
+    required: false
+    default: "false"
+  ignore_whitespace:
+    description: If true, ignore whitespace only at both the beginning and end of a line.
+    required: false
+    default: "false"
+  ignore_all_whitespace:
+    description: Ignores all whitespace.
+    required: false
+    default: "false"
+  ignore_empty_lines:
+    description: If true, will ignore empty lines when comparing files.
+    required: false
+    default: "false"
+  ignore_empty_dirs:
+    description: If true, will ignore empty directories when comparing directories.
+    required: false
+    default: "false"
+
+runs:
+  using: node20
+  main: ./dist/index.js
