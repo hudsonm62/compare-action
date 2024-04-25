@@ -4,6 +4,27 @@ description: 📂 Simply diffs 2 paths to see if they are the same or different.
 branding:
   icon: copy
   color: blue
+
+outputs:
+  result:
+    description: The result 'enum' of the comparison - `same`, `different`, `error`.
+  # not implemented yet
+  log_path:
+    description: The path to the log file that was written (assuming `write_log` is true).
+  ## actual numbers
+  distinct:
+    description: The total number of items that are orphan/distinct.
+  equal:
+    description: The total number of items that are the same.
+  different:
+    description: The total number of items with differences.
+  total_folders:
+    description: The total number of directories compared.
+  total_files:
+    description: The total number of files compared.
+  total:
+    description: The total number of items compared.
+
 inputs:
   path1:
     description: The first path to compare

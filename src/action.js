@@ -3,6 +3,32 @@
 const core = require("@actions/core")
 const compare = require("dir-compare")
 
+/**
+ * Fills the outputs for the step
+ * @param {compare.Result} results The results object from the diff
+ * @returns {void}
+ */
+function fillOutputs(results) {
+  const { distinct, equal, differences, totalDirs, totalFiles, total } = results
+
+  core.setOutput("distinct", distinct)
+  core.setOutput("equal", equal)
+  core.setOutput("different", differences)
+  core.setOutput("total_folders", totalDirs)
+  core.setOutput("total_files", totalFiles)
+  core.setOutput("total", total)
+
+  const resultEnum = { same: "same", different: "different", error: "error" }
+  let result = resultEnum.error
+  if (differences <= 0 && distinct <= 0 && equal > 0) {
+    result = resultEnum.same
+  } else if (differences > 0) {
+    result = resultEnum.different
+  }
+  // Set the result output
+  core.setOutput("result", result)
+}
+
 // log strings
 const noDiff = "All files ARE matching - No differences found."
 const diffFound = "Differences were found, files are NOT matching."
@@ -163,6 +189,7 @@ async function run() {
   compare // run the comparison //
     .compare(input.path1, input.path2, diffOptions)
     .then((res) => {
+      fillOutputs(res)
       makeResults(res)
       sortDiff(res, input)
     })
