@@ -1,0 +1,180 @@
+name: Test Action
+
+on: push
+
+permissions:
+  contents: read
+jobs:
+  # todo - could probably add more steps still
+  test-action:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: Test Action
+    steps:
+      - name: ⚙️ Checkout Repo
+        uses: actions/checkout@v4
+      - name: Normal Folder Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/directory1"
+          path2: "./__tests__/compare/directory2"
+          output_diff: true
+
+      - name: Normal File Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/m_file3.txt"
+          output_diff: true
+
+      - name: Exclude File Compare
+        uses: ./
+        with:
+          path1: "./__tests__/compare/directory1"
+          path2: "./__tests__/compare/directory2"
+          exclude: "d_file2.txt"
+          output_diff: true
+
+      # checks root compare vs directory1 (which contain identical files except the folders), so ignore the folders and compare roots
+      - name: Exclude Folders and Files
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare/directory1"
+          exclude: "d_file2.txt,directory2,directory1"
+          output_diff: true
+
+      - name: Test no error
+        uses: ./
+        with:
+          path1: "./__tests__/compare/d_file2.txt"
+          path2: "./__tests__/compare/m_file1.txt"
+          no_error: true
+          output_diff: true
+
+      - name: Test warn instead
+        uses: ./
+        with:
+          path1: "./__tests__/compare/d_file2.txt"
+          path2: "./__tests__/compare/m_file1.txt"
+          warn_instead: true
+          output_diff: true
+
+      - name: Test error same (same files)
+        continue-on-error: true
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/m_file1.txt"
+          error_same: true
+          output_diff: true
+
+      - name: Test error same (different files)
+        continue-on-error: false # shouldn't fail, since its erroring on matches
+        uses: ./
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/d_file2.txt"
+          error_same: true
+          output_diff: true
+
+      - name: Test Exclude Glob1 (file name)
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare"
+          exclude: "**/d_file2.txt"
+          output_diff: true
+
+      - name: Test Exclude Glob2 (file ext)
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare"
+          exclude: "**/*.txt"
+          output_diff: true
+
+      - name: Test Exclude Glob3 (folder name)
+        uses: ./
+        with:
+          path1: "./__tests__/compare"
+          path2: "./__tests__/compare"
+          exclude: "**/directory1/**"
+          output_diff: true
+
+  test-logging:
+    needs: test-action
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: Test Action Logging
+    permissions:
+      contents: write
+    steps:
+      - name: ⚙️ Checkout Repo
+        uses: actions/checkout@v4
+
+      - id: short-sha
+        uses: hudsonm62/short-sha@v1
+
+      - name: Normal Folder Compare
+        uses: ./
+        id: folder_compare
+        with:
+          path1: "./__tests__/compare/directory1"
+          path2: "./__tests__/compare/directory2"
+          output_diff: true
+          log_path: "./some_log1.txt" # on the cwd
+      - name: Normal File Compare
+        uses: ./
+        id: file_compare
+        with:
+          path1: "./__tests__/compare/m_file1.txt"
+          path2: "./__tests__/compare/m_file3.txt"
+          output_diff: true
+          log_path: "./some_log2.txt" # on the cwd
+
+      - name: compare logs (arent matching) # because why not
+        uses: ./
+        with:
+          path1: "./some_log1.txt"
+          path2: "./some_log2.txt"
+          output_diff: true
+          error_same: true
+
+      - name: Upload Log 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: "log1-${{ steps.short-sha.outputs.sha }}-${{ matrix.os }}"
+          path: "${{ steps.folder_compare.outputs.log_path }}"
+          compression-level: 9
+
+      - name: Upload Log 2
+        uses: actions/upload-artifact@v4
+        with:
+          name: "log2-${{ steps.short-sha.outputs.sha }}-${{ matrix.os }}"
+          path: "${{ steps.file_compare.outputs.log_path }}"
+          compression-level: 9
+
+      - name: Folder output step outputs
+        run: |
+          echo "Result: ${{ steps.folder_compare.outputs.result }}"
+          echo "Log Path: ${{ steps.folder_compare.outputs.log_path }}"
+          echo "Equal: ${{ steps.folder_compare.outputs.equal }}"
+          echo "Different: ${{ steps.folder_compare.outputs.different }}"
+          echo "Total Folders: ${{ steps.folder_compare.outputs.total_folders }}"
+          echo "Total Files: ${{ steps.folder_compare.outputs.total_files }}"
+          echo "Total: ${{ steps.folder_compare.outputs.total }}"
+
+      - name: File output step outputs
+        run: |
+          echo "Result: ${{ steps.file_compare.outputs.result }}"
+          echo "Log Path: ${{ steps.file_compare.outputs.log_path }}"
+          echo "Equal: ${{ steps.file_compare.outputs.equal }}"
+          echo "Different: ${{ steps.file_compare.outputs.different }}"
+          echo "Total Folders: ${{ steps.file_compare.outputs.total_folders }}"
+          echo "Total Files: ${{ steps.file_compare.outputs.total_files }}"
+          echo "Total: ${{ steps.file_compare.outputs.total }}"

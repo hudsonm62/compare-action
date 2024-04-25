@@ -8,7 +8,6 @@ branding:
 outputs:
   result:
     description: The result 'enum' of the comparison - `same`, `different`, `error`.
-  # not implemented yet
   log_path:
     description: The path to the log file that was written (assuming `log_path` input has a value).
   ## actual numbers
