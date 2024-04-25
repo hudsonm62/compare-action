@@ -18,12 +18,15 @@
 
 ## Configuration
 
+### Inputs
+
 | Input                   | Default | Description                                                                                                                        |
 | ----------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `path1`                 | `null`  | The first path to compare (required)                                                                                               |
 | `path2`                 | `null`  | The second path to compare (required)                                                                                              |
 | `exclude`               | `null`  | Relative [minimatch] Glob pattern to filter out - Specify multiple patterns by separating with a comma (i.e. "`**/*.js,**/*.ts`"). |
 | `include`               | `null`  | Relative [minimatch] Glob pattern to filter in - Specify multiple patterns by separating with a comma (i.e. "`**/*.js,**/*.ts`").  |
+| `log_path`              | `null`  | This is the path to write the log file. Only turns on file logging if this is set. Doesn't discriminate between `\` and `/`.       |
 | `compare_size`          | `true`  | If true, will compare the size of the files (always first).                                                                        |
 | `compare_content`       | `true`  | If true, will compare the content of the files.                                                                                    |
 | `error_same`            | `false` | If true, the action will fail if the files are the same. This changes depending on `no_error` and `warn_instead`                   |
@@ -38,6 +41,19 @@
 | `ignore_name_case`      | `false` | If true, will ignore the case of the file names.                                                                                   |
 | `compare_only_name`     | `false` | If true, will only compare the name of the files. (can be used in tandem with `compare_date`)                                      |
 | `compare_date`          | `false` | If true, will _also_ compare the date of the files. (can be used in tandem with any `compare_**` flags)                            |
+
+### Outputs
+
+| Value           | Description                                                                        |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `result`        | The result 'enum' of the comparison - `same`, `different`, `error`.                |
+| `log_path`      | The path to the log file that was written (assuming `log_path` input has a value). |
+| `distinct`      | The total number of items that are orphan/distinct.                                |
+| `equal`         | The total number of items that are the same.                                       |
+| `different`     | The total number of items with differences.                                        |
+| `total_folders` | The total number of folders compared.                                              |
+| `total_files`   | The total number of files compared.                                                |
+| `total`         | The total number of items compared.                                                |
 
 > Inputs `path1` and `path2` will automatically get converted to their platform-specific path.<br>_Always_ use `/` in your Globs, it will still work as per the platform.
 

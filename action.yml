@@ -10,7 +10,7 @@ outputs:
     description: The result 'enum' of the comparison - `same`, `different`, `error`.
   # not implemented yet
   log_path:
-    description: The path to the log file that was written (assuming `write_log` is true).
+    description: The path to the log file that was written (assuming `log_path` input has a value).
   ## actual numbers
   distinct:
     description: The total number of items that are orphan/distinct.
@@ -46,6 +46,9 @@ inputs:
     description: If true, will compare the content of the files.
     required: false
     default: "true"
+  log_path:
+    description: This is the path to write the log file. Only turns on file logging if this is set. Doesn't discriminate between `\` and `/`.
+    required: false
   error_same:
     description: Error if the inputs are the same (no diff). If no-error is set, this is ignored.
     required: false

@@ -2,6 +2,7 @@
 
 const core = require("@actions/core")
 const compare = require("dir-compare")
+const logger = require("./logger")
 
 /**
  * Fills the outputs for the step
@@ -32,27 +33,6 @@ function fillOutputs(results) {
 // log strings
 const noDiff = "All files ARE matching - No differences found."
 const diffFound = "Differences were found, files are NOT matching."
-
-/**
- * Handles error messages properly
- * @param {string} err The error message to display
- * @param {boolean} bNoError If true, then only throws at info-level
- * @param {boolean} bWarnOnly If true, then only throws at warning-level
- * @returns {string} The error message
- */
-function myError(err, bNoError = false, bWarnOnly = false) {
-  if (!bNoError) {
-    if (bWarnOnly) {
-      core.warning(err)
-    } else {
-      core.error(err)
-      // and fail the action (runWrapper handles actual failure)
-      throw new Error(err)
-    }
-  } else {
-    core.info(err)
-  }
-}
 
 /**
  * Makes the results string for the annotation in summary
@@ -92,7 +72,7 @@ function makeResults(results) {
  * The actual function that works out the end result of the action
  * @param {compare.Result} results Results from the diff
  */
-function sortDiff(results, options) {
+async function sortDiff(results, options) {
   const { diffSet, differences } = results
   const { bOutputDiff, bNoError, bErrorSame } = options
 
@@ -103,7 +83,7 @@ function sortDiff(results, options) {
     let differenceString
     diffSet.forEach(({ relativePath, name1, type1, state, name2, type2 }) => {
       differenceString = `${relativePath}/${name1} (${type1}): ${state} - ${name2} (${type2})`
-      core.info(differenceString)
+      logger.echo(differenceString)
     })
   }
 
@@ -112,12 +92,12 @@ function sortDiff(results, options) {
     core.debug = `- RESULT CASE: No differences: ${differences}`
     if (bErrorSame) {
       core.debug = `RESULT OPTION: Erroring same`
-      myError(noDiff, bNoError, options.bWarnInstead)
+      logger.myError(noDiff, bNoError, options.bWarnInstead)
       return
     } else {
       core.debug = `RESULT OPTION: Not erroring same`
       // Most common case
-      core.info(noDiff)
+      logger.echo(noDiff)
       return
     }
   }
@@ -126,13 +106,13 @@ function sortDiff(results, options) {
   // Result: Differences found
   if (differences > 0 && bErrorSame === false) {
     core.debug = `RESULT OPTION: Erroring differences`
-    myError(diffFound, bNoError, options.bWarnInstead)
+    logger.myError(diffFound, bNoError, options.bWarnInstead)
     return
   }
 
   // Result: Differences found (but no error specified)
   core.debug = `RESULT OPTION: Not erroring differences`
-  core.info(diffFound)
+  logger.echo(diffFound)
 }
 
 async function run() {
@@ -160,7 +140,6 @@ async function run() {
     bIgnoreEmptyLines: core.getBooleanInput("ignore_empty_lines"),
     bIgnoreEmptyDirs: core.getBooleanInput("ignore_empty_dirs"),
   }
-  core.debug("Input Object: " + JSON.stringify(input))
 
   let diffOptions = {
     compareFileAsync:
@@ -178,7 +157,7 @@ async function run() {
     skipEmptyDirs: input.bIgnoreEmptyDirs,
     noDiffSet: !input.bOutputDiff, // no diff set if not outputting diff
   }
-
+  core.debug("Diff options: " + JSON.stringify(diffOptions))
   // compare only names
   if (input.bCompareOnlyName) {
     diffOptions.compareContent = false
@@ -200,4 +179,4 @@ async function run() {
   /////////////////////////////
 }
 
-module.exports = { myError, run }
+module.exports = { run }
