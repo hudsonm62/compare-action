@@ -39,12 +39,16 @@ inputs:
     required: false
   compare_size:
     description: If true, will compare the size of the files (always first).
-    required: false
+    required: true
     default: "true"
   compare_content:
     description: If true, will compare the content of the files.
-    required: false
+    required: true
     default: "true"
+  compare_symlinks:
+    description: If true, compares symbolic links directly instead of their targets.
+    required: true
+    default: "false"
   log_path:
     description: This is the path to write the log file. Only turns on file logging if this is set. Doesn't discriminate between `\` and `/`.
     required: false
@@ -53,7 +57,7 @@ inputs:
     required: false
     default: "false"
   no_error:
-    description: Disable erroring. Simply outputs resulting summary.
+    description: Disable errors. Simply outputs results.
     required: false
     default: "false"
   warn_instead:
@@ -65,35 +69,39 @@ inputs:
     required: false
     default: "false"
   compare_date:
-    description: If true, will also compare the date of the files. (can be used in tandem with `compare_only_name`)
+    description: If true, will _also_ compare the date of the files. (can be used in tandem with any `compare_**` flags)
     required: false
     default: "false"
   compare_only_name:
-    description: If true, will only compare the name of the files. (can be used in tandem with `compare_date`)
+    description: If true, only compares the name of the files. (can be used in tandem with `compare_date`)
     required: false
     default: "false"
   ignore_name_case:
-    description: If true, will ignore the case of the file names.
+    description: If true, ignores the casing of the file names.
     required: false
     default: "false"
   ignore_line_ending:
-    description: If true, will ignore line endings when comparing files - (CRLF/LF).
+    description: If true, will ignore line endings when comparing files - CRLF/LF.
     required: false
     default: "false"
   ignore_whitespace:
-    description: If true, ignore whitespace only at both the beginning and end of a line.
+    description: If true, ignore any whitespace only at both the beginning and end of a line.
     required: false
     default: "false"
   ignore_all_whitespace:
-    description: Ignores all whitespace.
+    description: If true, ignores ALL whitespace in files.
     required: false
     default: "false"
   ignore_empty_lines:
-    description: If true, will ignore empty lines when comparing files.
+    description: If true, ignores empty lines when comparing files.
     required: false
     default: "false"
   ignore_empty_dirs:
-    description: If true, will ignore empty directories when comparing directories.
+    description: If true, ignores empty directories when comparing directories.
+    required: false
+    default: "false"
+  ignore_subdirs:
+    description: If true, skips subdirectories when comparing directories. Effectively only compares the root of the paths.
     required: false
     default: "false"
 

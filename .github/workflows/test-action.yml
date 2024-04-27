@@ -2,6 +2,9 @@ name: Test Action
 
 on: push
 
+env:
+  TEST_DIR: ./__tests__/compare
+
 permissions:
   contents: read
 jobs:
@@ -18,22 +21,22 @@ jobs:
       - name: Normal Folder Compare
         uses: ./
         with:
-          path1: "./__tests__/compare/directory1"
-          path2: "./__tests__/compare/directory2"
+          path1: "${{ env.TEST_DIR }}/directory1"
+          path2: "${{ env.TEST_DIR }}/directory2"
           output_diff: true
 
       - name: Normal File Compare
         uses: ./
         with:
-          path1: "./__tests__/compare/m_file1.txt"
-          path2: "./__tests__/compare/m_file3.txt"
+          path1: "${{ env.TEST_DIR }}/m_file1.txt"
+          path2: "${{ env.TEST_DIR }}/m_file3.txt"
           output_diff: true
 
       - name: Exclude File Compare
         uses: ./
         with:
-          path1: "./__tests__/compare/directory1"
-          path2: "./__tests__/compare/directory2"
+          path1: "${{ env.TEST_DIR }}/directory1"
+          path2: "${{ env.TEST_DIR }}/directory2"
           exclude: "d_file2.txt"
           output_diff: true
 
@@ -41,24 +44,24 @@ jobs:
       - name: Exclude Folders and Files
         uses: ./
         with:
-          path1: "./__tests__/compare"
-          path2: "./__tests__/compare/directory1"
+          path1: "${{ env.TEST_DIR }}"
+          path2: "${{ env.TEST_DIR }}/directory1"
           exclude: "d_file2.txt,directory2,directory1"
           output_diff: true
 
       - name: Test no error
         uses: ./
         with:
-          path1: "./__tests__/compare/d_file2.txt"
-          path2: "./__tests__/compare/m_file1.txt"
+          path1: "${{ env.TEST_DIR }}/d_file2.txt"
+          path2: "${{ env.TEST_DIR }}/m_file1.txt"
           no_error: true
           output_diff: true
 
       - name: Test warn instead
         uses: ./
         with:
-          path1: "./__tests__/compare/d_file2.txt"
-          path2: "./__tests__/compare/m_file1.txt"
+          path1: "${{ env.TEST_DIR }}/d_file2.txt"
+          path2: "${{ env.TEST_DIR }}/m_file1.txt"
           warn_instead: true
           output_diff: true
 
@@ -66,8 +69,8 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          path1: "./__tests__/compare/m_file1.txt"
-          path2: "./__tests__/compare/m_file1.txt"
+          path1: "${{ env.TEST_DIR }}/m_file1.txt"
+          path2: "${{ env.TEST_DIR }}/m_file1.txt"
           error_same: true
           output_diff: true
 
@@ -75,34 +78,52 @@ jobs:
         continue-on-error: false # shouldn't fail, since its erroring on matches
         uses: ./
         with:
-          path1: "./__tests__/compare/m_file1.txt"
-          path2: "./__tests__/compare/d_file2.txt"
+          path1: "${{ env.TEST_DIR }}/m_file1.txt"
+          path2: "${{ env.TEST_DIR }}/d_file2.txt"
           error_same: true
           output_diff: true
 
       - name: Test Exclude Glob1 (file name)
         uses: ./
         with:
-          path1: "./__tests__/compare"
-          path2: "./__tests__/compare"
+          path1: "${{ env.TEST_DIR }}"
+          path2: "${{ env.TEST_DIR }}"
           exclude: "**/d_file2.txt"
           output_diff: true
 
       - name: Test Exclude Glob2 (file ext)
         uses: ./
         with:
-          path1: "./__tests__/compare"
-          path2: "./__tests__/compare"
+          path1: "${{ env.TEST_DIR }}"
+          path2: "${{ env.TEST_DIR }}"
           exclude: "**/*.txt"
           output_diff: true
 
       - name: Test Exclude Glob3 (folder name)
         uses: ./
         with:
-          path1: "./__tests__/compare"
-          path2: "./__tests__/compare"
+          path1: "${{ env.TEST_DIR }}"
+          path2: "${{ env.TEST_DIR }}"
           exclude: "**/directory1/**"
           output_diff: true
+
+      - name: No diff output
+        uses: ./
+        with:
+          path1: "${{ env.TEST_DIR }}/"
+          path2: "${{ env.TEST_DIR }}/"
+          output_diff: false
+
+      # this works, because directory1/2 are ignored in `path2` (the file content is the same)
+      ### Ignore that, this doesn't work - see https://github.com/gliviu/dir-compare/issues/77
+      - name: Ignore Subdirectories
+        if: false
+        uses: ./
+        with:
+          path1: "${{ env.TEST_DIR }}/directory1"
+          path2: "${{ env.TEST_DIR }}"
+          output_diff: true
+          ignore_subdirs: true
 
   test-logging:
     needs: test-action
@@ -124,16 +145,16 @@ jobs:
         uses: ./
         id: folder_compare
         with:
-          path1: "./__tests__/compare/directory1"
-          path2: "./__tests__/compare/directory2"
+          path1: "${{ env.TEST_DIR }}/directory1"
+          path2: "${{ env.TEST_DIR }}/directory2"
           output_diff: true
           log_path: "./some_log1.txt" # on the cwd
       - name: Normal File Compare
         uses: ./
         id: file_compare
         with:
-          path1: "./__tests__/compare/m_file1.txt"
-          path2: "./__tests__/compare/m_file3.txt"
+          path1: "${{ env.TEST_DIR }}/m_file1.txt"
+          path2: "${{ env.TEST_DIR }}/m_file3.txt"
           output_diff: true
           log_path: "./some_log2.txt" # on the cwd
 

@@ -85,9 +85,8 @@ async function sortDiff(results, options) {
   core.debug("Diff Options: " + JSON.stringify(options, null, 2))
 
   if (bOutputDiff) {
-    let differenceString
     diffSet.forEach(({ relativePath, name1, type1, state, name2, type2 }) => {
-      differenceString = `${relativePath}/${name1} (${type1}): ${state} - ${name2} (${type2})`
+      const differenceString = `${relativePath}/${name1} (${type1}): ${state} - ${name2} (${type2})`
       logger.echo(differenceString)
     })
   }
@@ -139,6 +138,7 @@ async function run() {
     globIncludeFilter: core.getInput("include"),
     bCompareSize: core.getBooleanInput("compare_size"),
     bCompareContent: core.getBooleanInput("compare_content"),
+    bCompareSymLinks: core.getBooleanInput("compare_symlinks"),
     bWarnInstead: core.getBooleanInput("warn_instead"),
     bErrorSame: core.getBooleanInput("error_same"),
     bNoError: core.getBooleanInput("no_error"),
@@ -151,6 +151,7 @@ async function run() {
     bIgnoreAllWhiteSpace: core.getBooleanInput("ignore_all_whitespace"),
     bIgnoreEmptyLines: core.getBooleanInput("ignore_empty_lines"),
     bIgnoreEmptyDirs: core.getBooleanInput("ignore_empty_dirs"),
+    bIgnoreSubdirs: core.getBooleanInput("ignore_subdirs"),
   }
 
   let diffOptions = {
@@ -159,6 +160,7 @@ async function run() {
     compareSize: input.bCompareSize,
     compareContent: input.bCompareContent,
     compareDate: input.bCompareDate,
+    compareSymlink: input.bCompareSymLinks,
     includeFilter: input.globIncludeFilter,
     excludeFilter: input.globExcludeFilter,
     ignoreCase: input.bIgnoreNameCase,
@@ -167,16 +169,16 @@ async function run() {
     ignoreAllWhiteSpace: input.bIgnoreAllWhiteSpace,
     ignoreEmptyLines: input.bIgnoreEmptyLines,
     skipEmptyDirs: input.bIgnoreEmptyDirs,
+    skipSubdirs: input.bIgnoreSubdirs,
     noDiffSet: !input.bOutputDiff, // no diff set if not outputting diff
   }
-  core.debug("Diff options: " + JSON.stringify(diffOptions))
   // compare only names
   if (input.bCompareOnlyName) {
     diffOptions.compareContent = false
     diffOptions.compareSize = false
     //options.compareDate = false;
   }
-
+  core.debug("Diff options: " + JSON.stringify(diffOptions))
   compare // run the comparison //
     .compare(input.path1, input.path2, diffOptions)
     .then((res) => {
