@@ -148,7 +148,7 @@ jobs:
           path1: "${{ env.TEST_DIR }}/directory1"
           path2: "${{ env.TEST_DIR }}/directory2"
           output_diff: true
-          log_path: "./some_log1.txt" # on the cwd
+          log_path: "./some_log1.log" # on the cwd
       - name: Normal File Compare
         uses: ./
         id: file_compare
@@ -156,13 +156,13 @@ jobs:
           path1: "${{ env.TEST_DIR }}/m_file1.txt"
           path2: "${{ env.TEST_DIR }}/m_file3.txt"
           output_diff: true
-          log_path: "./some_log2.txt" # on the cwd
+          log_path: "./some_log2.log" # on the cwd
 
       - name: compare logs (arent matching) # because why not
         uses: ./
         with:
-          path1: "./some_log1.txt"
-          path2: "./some_log2.txt"
+          path1: "./some_log1.log"
+          path2: "./some_log2.log"
           output_diff: true
           error_same: true
 
