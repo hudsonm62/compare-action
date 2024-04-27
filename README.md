@@ -1,5 +1,9 @@
 # Compare Action 🔃
 
+[![CI](https://github.com/hudsonm62/compare-action/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/hudsonm62/compare-action/actions/workflows/ci.yml)
+[![Prettier](https://img.shields.io/badge/Code%20Style-prettier-F7B93E?logo=Prettier)](https://github.com/hudsonm62/compare-action/blob/master/.prettierrc)
+[![License](https://img.shields.io/github/license/hudsonm62/compare-action)](https://github.com/hudsonm62/compare-action/blob/master/LICENSE)
+
 📂 Simply compares 2 paths to see if they are the same or different. Supports globs, dates, and a handful of ignores.
 
 > By default, this will error if there are any differences, but it's behaviour can be configured as needed.
@@ -79,7 +83,7 @@
 
 ## Credits
 
-This is essentially an Action wrapper for [dir-compare](https://www.npmjs.com/package/dir-compare). Go check it out out!
+This is essentially an Action wrapper for [dir-compare](https://www.npmjs.com/package/dir-compare) - Go check it out out!
 
 ## License
 

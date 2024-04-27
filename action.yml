@@ -1,6 +1,6 @@
 name: Compare Action 🔃
 author: Hudson
-description: 📂 Simply diffs 2 paths to see if they are the same or different. Supports globs, symlinks, dates and more.
+description: 📂 Simply compares 2 paths to see if they are the same or different. Supports globs, dates, and a handful of ignores.
 branding:
   icon: copy
   color: blue
