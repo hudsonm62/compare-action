@@ -1,8 +1,8 @@
 # Compare Action 🔃
 
-📂 Simply diffs 2 paths to see if they are the same or different. Supports globs, symlinks, dates, and a handful of ignores.
+📂 Simply compares 2 paths to see if they are the same or different. Supports globs, dates, and a handful of ignores.
 
-> By default, this will error if there are any differences, but it can be configured otherwise.
+> By default, this will error if there are any differences, but it's behaviour can be configured as needed.
 
 ## Usage
 
