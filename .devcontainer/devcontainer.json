@@ -1,0 +1,11 @@
+{
+  "name": "Bun Alpine Environment",
+  "dockerFile": "dev.Dockerfile",
+  "waitFor": "postStartCommand",
+  "postStartCommand": "bun install",
+  "customizations": {
+    "vscode": {
+      "extensions": ["oven.bun-vscode"]
+    }
+  }
+}

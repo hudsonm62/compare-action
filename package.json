@@ -1,8 +1,7 @@
 {
   "displayName": "Compare Action",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "name": "compare-action",
-  "main": "dist/index.js",
   "author": {
     "name": "Hudson",
     "url": "https://github.com/hudsonm62"

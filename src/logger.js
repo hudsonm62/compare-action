@@ -1,14 +1,11 @@
 const core = require("@actions/core")
-import { appendFile } from "node:fs"
+const fs = require("fs")
 
 const logPathInput = core.getInput("log_path")
 const logPath = core.toPlatformPath(logPathInput)
 
 // should we write logs?
-let bWriteLog = false
-if (logPathInput !== "" || logPath !== null) {
-  bWriteLog = true // yes because we must have a path
-}
+const bWriteLog = logPathInput !== "" || logPath !== null
 
 /**
  * Handles error messages properly
@@ -18,18 +15,19 @@ if (logPathInput !== "" || logPath !== null) {
  * @returns {string} The error message
  */
 function myError(err, bNoError = false, bWarnOnly = false) {
-  core.debug("myError handler called: " + err)
   if (!bNoError) {
-    writeLog(err)
+    writeLogFile(err)
     if (bWarnOnly) {
       core.warning(err)
     } else {
+      // error and terminate
       core.error(err)
-      throw new Error(err) // and fail the action (runWrapper handles actual failure)
+      throw err
     }
   } else {
     echo(err)
   }
+  return err
 }
 
 /**
@@ -38,18 +36,19 @@ function myError(err, bNoError = false, bWarnOnly = false) {
  */
 function echo(str) {
   core.info(str)
-  writeLog(str)
+  writeLogFile(str)
   return str
 }
 
 // writes to file
-function writeLog(str) {
+function writeLogFile(str) {
   if (bWriteLog) {
-    core.debug("Writing to log file")
     const now = new Date()
     const time = now.toISOString().replace(/\..+/, "")
-    appendFile(logPath, time + " " + str + "\n", (err) => {})
+    fs.appendFile(logPath, time + " " + str + "\n", (err) => {
+      core.debug("Error writing to log file: " + err)
+    })
   }
 }
 
-module.exports = { myError, echo }
+export { echo, myError, writeLogFile }

@@ -12,6 +12,8 @@ const logger = require("./logger")
 function fillOutputs(results) {
   const { distinct, equal, differences, totalDirs, totalFiles, total } = results
 
+  const log = core.getInput("log_path")
+  core.setOutput("log_path", log)
   core.setOutput("distinct", distinct)
   core.setOutput("equal", equal)
   core.setOutput("different", differences)
@@ -37,6 +39,7 @@ const diffFound = "Differences were found, files are NOT matching."
 /**
  * Makes the results string for the annotation in summary
  * @param {compare.Result} results The results object from the diff
+ * @returns {string} The results string
  */
 function makeResults(results) {
   const equal =
@@ -65,56 +68,64 @@ function makeResults(results) {
         : `${results.total} items`
 
   const str = `${equal}, ${distinct}, and ${differences}. - Total Checked: ${total}`
-  core.notice(str, { title: "File Comparison Results" })
+  return str
 }
 
 /**
  * The actual function that works out the end result of the action
  * @param {compare.Result} results Results from the diff
+ * @param {Object} options Original diff options
+ * @returns {void}
  */
 async function sortDiff(results, options) {
   const { diffSet, differences } = results
   const { bOutputDiff, bNoError, bErrorSame } = options
 
-  core.debug("Diff Results: " + JSON.stringify(results))
-  core.debug("Diff Options: " + JSON.stringify(options))
+  core.debug("Diff Results: " + JSON.stringify(results, null, 2))
+  core.debug("Diff Options: " + JSON.stringify(options, null, 2))
 
   if (bOutputDiff) {
-    let differenceString
     diffSet.forEach(({ relativePath, name1, type1, state, name2, type2 }) => {
-      differenceString = `${relativePath}/${name1} (${type1}): ${state} - ${name2} (${type2})`
+      const differenceString = `${relativePath}/${name1} (${type1}): ${state} - ${name2} (${type2})`
       logger.echo(differenceString)
     })
   }
 
-  // Result: No differences
-  if (differences <= 0) {
-    core.debug = `- RESULT CASE: No differences: ${differences}`
-    if (bErrorSame) {
-      core.debug = `RESULT OPTION: Erroring same`
-      logger.myError(noDiff, bNoError, options.bWarnInstead)
-      return
-    } else {
-      core.debug = `RESULT OPTION: Not erroring same`
-      // Most common case
-      logger.echo(noDiff)
+  try {
+    // Result: No differences
+    if (differences <= 0) {
+      core.debug(`- RESULT CASE: No differences: ${differences}`)
+      if (bErrorSame) {
+        core.debug(`RESULT OPTION: Erroring same`)
+        logger.myError(noDiff, bNoError, options.bWarnInstead)
+      } else {
+        core.debug(`RESULT OPTION: Not erroring same`)
+        // Most common case
+        logger.echo(noDiff)
+      }
       return
     }
-  }
-
-  core.debug = `- RESULT CASE: Differences detected: ${differences}`
-  // Result: Differences found
-  if (differences > 0 && bErrorSame === false) {
-    core.debug = `RESULT OPTION: Erroring differences`
-    logger.myError(diffFound, bNoError, options.bWarnInstead)
-    return
+    core.debug(`- RESULT CASE: Differences detected: ${differences}`)
+    // Result: Differences found
+    if (differences > 0 && bErrorSame === false) {
+      core.debug(`RESULT OPTION: Erroring differences`)
+      logger.myError(diffFound, bNoError, options.bWarnInstead)
+      return
+    }
+  } catch (error) {
+    //core.error(error) // already logged
+    return null
   }
 
   // Result: Differences found (but no error specified)
-  core.debug = `RESULT OPTION: Not erroring differences`
+  core.debug(`RESULT OPTION: Not erroring differences`)
   logger.echo(diffFound)
 }
 
+/**
+ * The main function that runs the action
+ * This is wrapped in index.js to setFailed with a caught error
+ */
 async function run() {
   // set paths
   const input1 = core.getInput("path1")
@@ -127,6 +138,7 @@ async function run() {
     globIncludeFilter: core.getInput("include"),
     bCompareSize: core.getBooleanInput("compare_size"),
     bCompareContent: core.getBooleanInput("compare_content"),
+    bCompareSymLinks: core.getBooleanInput("compare_symlinks"),
     bWarnInstead: core.getBooleanInput("warn_instead"),
     bErrorSame: core.getBooleanInput("error_same"),
     bNoError: core.getBooleanInput("no_error"),
@@ -139,14 +151,16 @@ async function run() {
     bIgnoreAllWhiteSpace: core.getBooleanInput("ignore_all_whitespace"),
     bIgnoreEmptyLines: core.getBooleanInput("ignore_empty_lines"),
     bIgnoreEmptyDirs: core.getBooleanInput("ignore_empty_dirs"),
+    bIgnoreSubdirs: core.getBooleanInput("ignore_subdirs"),
   }
 
   let diffOptions = {
     compareFileAsync:
       compare.fileCompareHandlers.lineBasedFileCompare.compareAsync,
     compareSize: input.bCompareSize,
-    compareContent: true,
+    compareContent: input.bCompareContent,
     compareDate: input.bCompareDate,
+    compareSymlink: input.bCompareSymLinks,
     includeFilter: input.globIncludeFilter,
     excludeFilter: input.globExcludeFilter,
     ignoreCase: input.bIgnoreNameCase,
@@ -155,28 +169,28 @@ async function run() {
     ignoreAllWhiteSpace: input.bIgnoreAllWhiteSpace,
     ignoreEmptyLines: input.bIgnoreEmptyLines,
     skipEmptyDirs: input.bIgnoreEmptyDirs,
+    skipSubdirs: input.bIgnoreSubdirs,
     noDiffSet: !input.bOutputDiff, // no diff set if not outputting diff
   }
-  core.debug("Diff options: " + JSON.stringify(diffOptions))
   // compare only names
   if (input.bCompareOnlyName) {
     diffOptions.compareContent = false
     diffOptions.compareSize = false
     //options.compareDate = false;
   }
-
+  core.debug("Diff options: " + JSON.stringify(diffOptions))
   compare // run the comparison //
     .compare(input.path1, input.path2, diffOptions)
     .then((res) => {
       fillOutputs(res)
-      makeResults(res)
+      const results = makeResults(res)
+      core.notice(results, { title: "File Comparison Results" })
       sortDiff(res, input)
     })
     .catch((error) => {
       core.error(error)
-      process.exit(1) // so runWrapper can catch it
+      throw new Error(error) // run() will catch this and setFailed
     })
-  /////////////////////////////
 }
 
-module.exports = { run }
+export { run }

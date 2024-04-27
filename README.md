@@ -1,8 +1,12 @@
 # Compare Action 🔃
 
-📂 Simply diffs 2 paths to see if they are the same or different. Supports globs, symlinks, dates, and a handful of ignores.
+[![CI](https://github.com/hudsonm62/compare-action/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/hudsonm62/compare-action/actions/workflows/ci.yml)
+[![Prettier](https://img.shields.io/badge/Code%20Style-prettier-F7B93E?logo=Prettier)](https://github.com/hudsonm62/compare-action/blob/master/.prettierrc)
+[![License](https://img.shields.io/github/license/hudsonm62/compare-action)](https://github.com/hudsonm62/compare-action/blob/master/LICENSE)
 
-> By default, this will error if there are any differences, but it can be configured otherwise.
+📂 Simply compares 2 paths to see if they are the same or different. Supports globs, dates, and a handful of ignores.
+
+> By default, this will error if there are any differences, but it's behaviour can be configured as needed.
 
 ## Usage
 
@@ -29,17 +33,19 @@
 | `log_path`              | `null`  | This is the path to write the log file. Only turns on file logging if this is set. Doesn't discriminate between `\` and `/`.       |
 | `compare_size`          | `true`  | If true, will compare the size of the files (always first).                                                                        |
 | `compare_content`       | `true`  | If true, will compare the content of the files.                                                                                    |
+| `compare_symlinks`      | `false` | If true, compares symbolic links directly instead of their targets.                                                                |
 | `error_same`            | `false` | If true, the action will fail if the files are the same. This changes depending on `no_error` and `warn_instead`                   |
-| `no_error`              | `false` | Disable erroring. Simply outputs resulting summary.                                                                                |
+| `no_error`              | `false` | Disable errors. Simply outputs results.                                                                                            |
 | `warn_instead`          | `false` | If true, replaces any diff-related failing errors with just a warning.                                                             |
 | `output_diff`           | `false` | If true, outputs each compare result to console (matched or not) line by line. Not recommended for large file sets.                |
-| `ignore_line_endings`   | `false` | If true, will ignore line endings when comparing files - (CRLF/LF).                                                                |
-| `ignore_whitespace`     | `false` | If true, ignore whitespace only at both the beginning and end of a line.                                                           |
-| `ignore_all_whitespace` | `false` | If true, ignores all whitespace in files.                                                                                          |
-| `ignore_empty_lines`    | `false` | If true, will ignore empty lines when comparing files.                                                                             |
-| `ignore_empty_dirs`     | `false` | If true, will ignore empty directories when comparing directories.                                                                 |
-| `ignore_name_case`      | `false` | If true, will ignore the case of the file names.                                                                                   |
-| `compare_only_name`     | `false` | If true, will only compare the name of the files. (can be used in tandem with `compare_date`)                                      |
+| `ignore_line_endings`   | `false` | If true, will ignore line endings when comparing files - CRLF/LF.                                                                  |
+| `ignore_whitespace`     | `false` | If true, ignore any whitespace only at both the beginning and end of a line.                                                       |
+| `ignore_all_whitespace` | `false` | If true, ignores ALL whitespace in files.                                                                                          |
+| `ignore_empty_lines`    | `false` | If true, ignores empty lines when comparing files.                                                                                 |
+| `ignore_empty_dirs`     | `false` | If true, ignores empty directories when comparing directories.                                                                     |
+| `ignore_subdirs`        | `false` | If true, skips subdirectories when comparing directories. Effectively only compares the root of the paths.                         |
+| `ignore_name_case`      | `false` | If true, ignores the casing of the file names.                                                                                     |
+| `compare_only_name`     | `false` | If true, only compares the name of the files. (can be used in tandem with `compare_date`)                                          |
 | `compare_date`          | `false` | If true, will _also_ compare the date of the files. (can be used in tandem with any `compare_**` flags)                            |
 
 ### Outputs
@@ -55,9 +61,9 @@
 | `total_files`   | The total number of files compared.                                                |
 | `total`         | The total number of items compared.                                                |
 
-> Inputs `path1` and `path2` will automatically get converted to their platform-specific path.<br>_Always_ use `/` in your Globs, it will still work as per the platform.
+> Inputs `path1` and `path2` will automatically get converted to their platform-specific path.<br>_Always_ use `/` in your Globs, it will still work.
 
-## Common Issues
+## Common Problems
 
 - **Exclude Glob isn't working**
   - Double check its actually a [minimatch] glob pattern.
@@ -71,10 +77,13 @@
   - Ensure you've checked out your repo
   - Check the job has at least `read` for `contents` permissions.
   - If you're using a relative path, make sure you're in the right directory.
+- **`ignore_subdirs` doesn't ignore the directories**
+  - Right now, it only ignores items in subdirectories, not the directories themselves.
+  - I don't think this is expected behaviour - See [gliviu/dir-compare#77](https://github.com/gliviu/dir-compare/issues/77) for more info.
 
 ## Credits
 
-This is essentially an Action wrapper for [dir-compare](https://www.npmjs.com/package/dir-compare). Go check it out out!
+This is essentially an Action wrapper for [dir-compare](https://www.npmjs.com/package/dir-compare) - Go check it out out!
 
 ## License
 
