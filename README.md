@@ -77,9 +77,6 @@
   - Ensure you've checked out your repo
   - Check the job has at least `read` for `contents` permissions.
   - If you're using a relative path, make sure you're in the right directory.
-- **`ignore_subdirs` doesn't ignore the directories**
-  - Right now, it only ignores items in subdirectories, not the directories themselves.
-  - I don't think this is expected behaviour - See [gliviu/dir-compare#77](https://github.com/gliviu/dir-compare/issues/77) for more info.
 
 ## Credits
 
