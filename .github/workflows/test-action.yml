@@ -115,9 +115,7 @@ jobs:
           output_diff: false
 
       # this works, because directory1/2 are ignored in `path2` (the file content is the same)
-      ### Ignore that, this doesn't work - see https://github.com/gliviu/dir-compare/issues/77
       - name: Ignore Subdirectories
-        if: false
         uses: ./
         with:
           path1: "${{ env.TEST_DIR }}/directory1"
