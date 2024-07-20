@@ -18,7 +18,7 @@ jobs:
         uses: hudsonm62/prettier-cli@v1.0.0
 
       - name: 🍞 Setup Bun ${{ matrix.bun-version }}
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ matrix.bun-version }}
 
