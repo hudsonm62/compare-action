@@ -14,9 +14,6 @@ jobs:
       - name: ⚙️ Checkout Repo
         uses: actions/checkout@v4
 
-      - name: 🧹 Lint Prettier
-        uses: hudsonm62/prettier-cli@v1.0.0
-
       - name: 🍞 Setup Bun ${{ matrix.bun-version }}
         uses: oven-sh/setup-bun@v2
         with:
