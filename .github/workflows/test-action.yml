@@ -17,7 +17,7 @@ jobs:
     name: Test Action
     steps:
       - name: ⚙️ Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Normal Folder Compare
         uses: ./
         with:
@@ -134,7 +134,7 @@ jobs:
       contents: write
     steps:
       - name: ⚙️ Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - id: short-sha
         uses: hudsonm62/short-sha@v1
