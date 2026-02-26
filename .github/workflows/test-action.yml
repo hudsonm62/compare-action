@@ -165,14 +165,14 @@ jobs:
           error_same: true
 
       - name: Upload Log 1
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "log1-${{ steps.short-sha.outputs.sha }}-${{ matrix.os }}"
           path: "${{ steps.folder_compare.outputs.log_path }}"
           compression-level: 9
 
       - name: Upload Log 2
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: "log2-${{ steps.short-sha.outputs.sha }}-${{ matrix.os }}"
           path: "${{ steps.file_compare.outputs.log_path }}"
